@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Button from './Button';
 import { styles } from '../styles/GlobalStyles';
 import { View, Text, ScrollView, Modal, FlatList, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Keyboard() {
     const operators = '+-×÷%';
+    const [onLoading, setOnLoading] = React.useState(true);
     const [expression, setExpression] = React.useState('');
     const [isResult, setIsResult] = React.useState(false);
     const [historyVisible, setHistoryVisible] = useState(false);
@@ -12,6 +14,46 @@ export default function Keyboard() {
     const [filteredHistory, setFilteredHistory] = useState([]);
     const [isSearching, setIsSearching] = useState(false);
 
+    // Save history to storage
+    const storeData = async (history) => {
+        try {
+            await AsyncStorage.setItem('@history', history);
+        } catch (e) {
+            console.log(e);
+        }
+    }
+    
+    // Get history data from storage
+    const getData = async () => {
+        try {
+            const data = await AsyncStorage.getItem('@history');
+            if (data !== null) {
+                if (data === '') setHistoryArr([]);
+                else {
+                    let tempArr = data.split(',');
+                    let history = [];
+                    while(tempArr.length) history.push(tempArr.splice(0,2));
+                    setHistoryArr(history);
+                }
+            } 
+        }   
+        catch(e) {
+            console.log(e);
+        }
+    }
+
+    // Save history to storage if any change on historyArr after every rendering. 
+    useEffect(() => {
+        if (historyArr.length !== 0)
+            storeData(historyArr);
+    }, [historyArr]);
+
+    // Loading history data from storage when init component.  
+    useEffect(() => {
+        getData();
+    }, []);
+
+    // Handle input expression
     const handleExpression = (btnValue) => {
         setIsResult(false);
         if  (expression.length < 20) {
@@ -116,7 +158,7 @@ export default function Keyboard() {
         }
     }
 
-    // Count a char in expression
+    // Utility func: Count char in expression
     const countChar = (char) => {
         let count = 0;
         for (let i = 0; i < expression.length; i++) {
@@ -160,15 +202,13 @@ export default function Keyboard() {
           <Text style= {styles.historyItemText}>= {result}</Text>
         </View>
     );
+
     // render history flat list items
     const renderItem = ({ item }) => (
         <Item expression={item[0]} result={item[1]} />
     );
 
-    const showHistory = () => {
-        setHistoryVisible(true);
-    }
-
+    // Search by result
     const searchByResult = (result) => {
         if (result != '') {
             setIsSearching(true);
@@ -180,6 +220,7 @@ export default function Keyboard() {
 
     }
 
+    // History view
     const history = () => {
         return (
             <Modal 
@@ -201,8 +242,11 @@ export default function Keyboard() {
                         data={isSearching ? filteredHistory : historyArr}
                         renderItem={renderItem}
                     />
-                    </View> 
-                    <Button title='close' isHistory onPress={() => {setHistoryVisible(!historyVisible); setIsSearching(false);}} />
+                    </View>
+                    <View style={{flexDirection: 'row'}}> 
+                        <Button title='close' isHistory onPress={() => {setHistoryVisible(!historyVisible); setIsSearching(false);}} />
+                        <Button title='Delete' isHistory onPress={() => {setHistoryArr([]); storeData('')}} />
+                    </View>
                 </KeyboardAvoidingView>
             </Modal>
         );
@@ -227,7 +271,7 @@ export default function Keyboard() {
                     justifyContent: 'space-between',
                 }}    
             >
-                <Button title ='history' isHistory onPress={() => {showHistory()}} />
+                <Button title ='history' isHistory onPress={() => {setHistoryVisible(true)}} />
                 <Button title ='⌫' isDelete onPress={() => handleDelete()} />
             </View>
             <View style={styles.row}>
