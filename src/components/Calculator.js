@@ -45,7 +45,7 @@ export default function Calculator() {
     // Save history to storage if any change on historyArr after every rendering. 
     useEffect(() => {
         if (historyArr.length !== 0)
-            storeData(historyArr);
+            storeData(historyArr.toString());
     }, [historyArr]);
 
     // Loading history data from storage when init component.  
