@@ -4,7 +4,7 @@ import { styles } from '../styles/GlobalStyles';
 import { View, Text, ScrollView, Modal, FlatList, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function Keyboard() {
+export default function Calculator() {
     const operators = '+-×÷%';
     const [onLoading, setOnLoading] = React.useState(true);
     const [expression, setExpression] = React.useState('');
@@ -245,7 +245,7 @@ export default function Keyboard() {
                     </View>
                     <View style={{flexDirection: 'row'}}> 
                         <Button title='close' isHistory onPress={() => {setHistoryVisible(!historyVisible); setIsSearching(false);}} />
-                        <Button title='Delete' isHistory onPress={() => {setHistoryArr([]); storeData('')}} />
+                        <Button title='Delete' isHistory onPress={() => {setHistoryArr([]); storeData('');}} />
                     </View>
                 </KeyboardAvoidingView>
             </Modal>

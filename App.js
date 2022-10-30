@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, KeyboardAvoidingView, Platform } from 'react-native';
-import Keyboard from './src/components/Keyboard';
+import Calculator from './src/components/Calculator';
 
 export default function App() {
   return (
@@ -10,7 +10,7 @@ export default function App() {
       style={styles.container}
     >
       <StatusBar style="auto" />
-      <Keyboard />
+      <Calculator />
     </KeyboardAvoidingView>
   );
 }
